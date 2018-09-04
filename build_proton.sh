@@ -446,23 +446,36 @@ function build_vrclient32_tests
 
 function build_dxvk
 {
+    # dxvk refuses to build on OS X so skipping this step manages to get things to compile.
+    # the error that blocked dxvk from installing related to the install_name_tool command
+    #if [ "$PLATFORM" == "Darwin" ]; then
+    #    echo "skipping dxvk on macOS"
+    #    return 0
+    #fi
+
+    GLSLANG_PATH="$TOP/glslang/linux/bin/"
+    if [ "$PLATFORM" == "Darwin" ]; then
+        echo "Darwin."
+        GLSLANG_PATH="$TOP/glslang/osx/bin/"
+    fi
+
     #unfortunately the Steam chroots are too old to build DXVK, so we have to
     #build it in the host system
     if [ ! -e "$TOP/build/dxvk.win64/bin/d3d11.dll" ]; then
         cd "$TOP"/dxvk
         mkdir -p "$TOP"/build/dxvk.win32
         cd "$TOP"/dxvk
-        PATH="$TOP/glslang/bin/:$PATH" meson --strip --buildtype="release" --prefix="$TOP"/build/dxvk.win32 --cross-file build-win32.txt "$TOP"/build/dxvk.win32
+        PATH=$GLSLANG_PATH:$PATH meson --strip --buildtype="release" --prefix="$TOP"/build/dxvk.win32 --cross-file build-win32.txt "$TOP"/build/dxvk.win32
         cd "$TOP"/build/dxvk.win32
-        PATH="$TOP/glslang/bin/:$PATH" ninja
-        PATH="$TOP/glslang/bin/:$PATH" ninja install
+        PATH=$GLSLANG_PATH:$PATH ninja
+        PATH=$GLSLANG_PATH:$PATH ninja install
 
         cd "$TOP"/dxvk
         mkdir -p "$TOP"/build/dxvk.win64
-        PATH="$TOP/glslang/bin/:$PATH" meson --strip --buildtype="release" --prefix="$TOP"/build/dxvk.win64 --cross-file build-win64.txt "$TOP"/build/dxvk.win64
+        PATH=$GLSLANG_PATH:$PATH meson --strip --buildtype="release" --prefix="$TOP"/build/dxvk.win64 --cross-file build-win64.txt "$TOP"/build/dxvk.win64
         cd "$TOP"/build/dxvk.win64
-        PATH="$TOP/glslang/bin/:$PATH" ninja
-        PATH="$TOP/glslang/bin/:$PATH" ninja install
+        PATH=$GLSLANG_PATH:$PATH ninja
+        PATH=$GLSLANG_PATH:$PATH ninja install
     fi
 
     cd "$TOP"
